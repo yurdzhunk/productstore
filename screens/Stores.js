@@ -1,8 +1,8 @@
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
-import {db, storage} from '../firebase-config'
-import {collection, query, where, getDocs} from 'firebase/firestore';
+import {db, storage} from '../firebase-config';
+import {collection, getDocs} from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { useNavigation } from '@react-navigation/native';
 
