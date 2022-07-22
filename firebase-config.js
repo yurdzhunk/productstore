@@ -1,16 +1,17 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from '@firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD4PJS7CAbsUEQf66AbuglpKgYX4PfNX1c",
-  authDomain: "productstore-redux-firebase.firebaseapp.com",
-  projectId: "productstore-redux-firebase",
-  storageBucket: "productstore-redux-firebase.appspot.com",
-  messagingSenderId: "584240581413",
-  appId: "1:584240581413:web:d4a1a838f4d96091aae8cc",
-  measurementId: "G-W8K6J7C9WT"
-};
+    apiKey: "AIzaSyAvL74WKYPg6DCfxO6f6Xu8rOXp-6vHGDg",
+    authDomain: "product-store-419ec.firebaseapp.com",
+    projectId: "product-store-419ec",
+    storageBucket: "product-store-419ec.appspot.com",
+    messagingSenderId: "788701827361",
+    appId: "1:788701827361:web:f8547dd363f79838cfee60"
+  };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
