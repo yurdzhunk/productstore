@@ -15,7 +15,6 @@ export const cartProductsSlice = createSlice({
                 }
             }
             state.list.push(action.payload);
-            console.log(state.list)
         },
         deleteProduct: (state, action) => {
             let indexToDelete;

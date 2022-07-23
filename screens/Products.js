@@ -30,9 +30,9 @@ const Products = ({navigation, route}) => {
 
         getProductsData();
 
-    }, []);
+    }, [store]);
 
-    useMemo(() => {
+    useEffect(() => {
 
         const addProductsImages = async () => {
             const tempProductImages = await Promise.all(
@@ -50,7 +50,6 @@ const Products = ({navigation, route}) => {
             for(let i of products){
                 tempArray.push(1);
             }
-            console.log('temp array ',tempArray)
             setProductsCounters(tempArray);
         }
 
@@ -59,7 +58,7 @@ const Products = ({navigation, route}) => {
             addProductsCounters();
         }
 
-    }, [products])
+    }, [products, store])
 
     const plusCount = (id) => {
         let tempArray = [...productsCounters];
@@ -75,39 +74,39 @@ const Products = ({navigation, route}) => {
         }
     }
 
-    const addToCart = (item) => {
+    const addToCart = (item, image, count) => {
         let prod = {
             id: item.id,
             name: item.name,
             price: item.price,
             store: item.store,
-            image: productsImages[item.id],
-            count: productsCounters[item.id],
+            image: image,
+            count: count,
         }
         dispatch(addProduct(prod));
     }
 
-    const renderItem = ({item}) => (
+    const renderItem = ({item, index}) => (
         <View style={{...styles.card, width: width}}>
-            <Image  style={styles.cardImage} source={{uri: productsImages[item.id]}}/>
+            <Image  style={styles.cardImage} source={{uri: productsImages[index]}}/>
             <Text style={styles.prodName}>{item.name}</Text>
             <Text style={{...styles.prodName, color: 'green'}}>{item.price}$</Text>
             <View style={styles.counter}>
                 <View style={{flex: 4, alignItems: 'flex-end'}}>
-                    <TouchableOpacity style={styles.counterButton} onPress={() => minusCount(item.id)}>
+                    <TouchableOpacity style={styles.counterButton} onPress={() => minusCount(index)}>
                         <AntDesign name="minuscircleo" size={32} color="orange" />
                     </TouchableOpacity>
                 </View>
                 <View style={{flex: 1, alignItems: 'center'}}>
-                    <Text style={{ fontSize: 26}}>{productsCounters[item.id]}</Text>
+                    <Text style={{ fontSize: 26}}>{productsCounters[index]}</Text>
                 </View>
                 <View style={{flex: 4, alignItems: 'flex-start'}}>
-                    <TouchableOpacity style={styles.counterButton} onPress={() => plusCount(item.id)}>
+                    <TouchableOpacity style={styles.counterButton} onPress={() => plusCount(index)}>
                         <AntDesign name="pluscircleo" size={32} color="orange" />
                     </TouchableOpacity>
                 </View>
             </View>
-            <TouchableOpacity style={styles.buttonPrimary} onPress={() => addToCart(item)}>
+            <TouchableOpacity style={styles.buttonPrimary} onPress={() => addToCart(item, productsImages[index], productsCounters[index])}>
                 <Text style={{...styles.prodName, color: '#fff', fontSize: 26}}>Add to Cart</Text>
             </TouchableOpacity>
         </View>
