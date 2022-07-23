@@ -5,13 +5,21 @@ import {db, storage} from '../firebase-config';
 import {collection, getDocs} from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 
 const Stores = () => {
     const [stores, setStores] = useState([]);
     const [storesImages, setStoresImages] = useState([]);
     const navigation = useNavigation();
-    const storeCollectionRef = collection(db, 'stores')
+    const storeCollectionRef = collection(db, 'stores');
+    const [blocked, setBlocked] = useState({
+        'KFC': false,
+        'Mcdonalds': false,
+        'Dominos': false
+    })
+
+    const productsInCart = useSelector((state) => state.cartProducts.list);
 
     useEffect(() => {
 
@@ -24,6 +32,25 @@ const Stores = () => {
         getStoresData();
 
     }, []);
+
+    useEffect(() => {
+        if(productsInCart.length > 0){
+            let storeName = productsInCart[0].store;
+            if(storeName == 'KFC'){
+                setBlocked({...blocked, 'Mcdonalds': true, 'Dominos': true})
+            }else if(storeName == 'Mcdonalds'){
+                setBlocked({...blocked, 'KFC': true, 'Dominos': true})
+            }else{
+                setBlocked({...blocked, 'Mcdonalds': true, 'KFC': true})
+            }
+        }else {
+            setBlocked({
+                'KFC': false,
+                'Mcdonalds': false,
+                'Dominos': false
+            })
+        }
+    }, [productsInCart])
 
     useEffect(() => {
 
@@ -50,7 +77,7 @@ const Stores = () => {
         <View style={styles.container}>
             {stores.map((store, key) => {
                 return(
-                <TouchableOpacity style={styles.container} key={store.id} onPress={() => navigation.navigate('Products', {'store': store.name})}>
+                <TouchableOpacity disabled={blocked[store.name]} style={styles.container} key={store.id} onPress={() => navigation.navigate('Products', {'store': store.name})}>
                     <View style={styles.block} key={store.id}>
                         <ImageBackground source={{ uri: storesImages[key] }} style={styles.imageBack}>
                             <Text style={styles.storeName}>{store.name}</Text>

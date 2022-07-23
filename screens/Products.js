@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, useWindowDimensions, TouchableOpacity} from 'react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import {db, storage} from '../firebase-config';
+import { useDispatch } from 'react-redux';
+import { addProduct } from '../redux/cartProducts';
+import { Entypo, Feather, Octicons, Ionicons, AntDesign } from '@expo/vector-icons';
+
 
 const Products = ({navigation, route}) => {
 
@@ -11,6 +15,8 @@ const Products = ({navigation, route}) => {
 
     const [products, setProducts] = useState([]);
     const [productsImages, setProductsImages] = useState([]);
+    const [productsCounters, setProductsCounters] = useState([]);
+    const dispatch = useDispatch();
 
 
     useEffect(() => {
@@ -26,7 +32,7 @@ const Products = ({navigation, route}) => {
 
     }, []);
 
-    useEffect(() => {
+    useMemo(() => {
 
         const addProductsImages = async () => {
             const tempProductImages = await Promise.all(
@@ -39,18 +45,69 @@ const Products = ({navigation, route}) => {
             setProductsImages([...tempProductImages]);
         }
 
+        const addProductsCounters = () => {
+            let tempArray = []
+            for(let i of products){
+                tempArray.push(1);
+            }
+            console.log('temp array ',tempArray)
+            setProductsCounters(tempArray);
+        }
+
         if(products.length > 0){
             addProductsImages();
+            addProductsCounters();
         }
 
     }, [products])
+
+    const plusCount = (id) => {
+        let tempArray = [...productsCounters];
+        tempArray[id]++;
+        setProductsCounters([...tempArray])
+    }
+
+    const minusCount = (id) => {
+        let tempArray = [...productsCounters];
+        if(tempArray[id] != 1){
+            tempArray[id]--;
+            setProductsCounters([...tempArray])
+        }
+    }
+
+    const addToCart = (item) => {
+        let prod = {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            store: item.store,
+            image: productsImages[item.id],
+            count: productsCounters[item.id],
+        }
+        dispatch(addProduct(prod));
+    }
 
     const renderItem = ({item}) => (
         <View style={{...styles.card, width: width}}>
             <Image  style={styles.cardImage} source={{uri: productsImages[item.id]}}/>
             <Text style={styles.prodName}>{item.name}</Text>
             <Text style={{...styles.prodName, color: 'green'}}>{item.price}$</Text>
-            <TouchableOpacity style={styles.buttonPrimary}>
+            <View style={styles.counter}>
+                <View style={{flex: 4, alignItems: 'flex-end'}}>
+                    <TouchableOpacity style={styles.counterButton} onPress={() => minusCount(item.id)}>
+                        <AntDesign name="minuscircleo" size={32} color="orange" />
+                    </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                    <Text style={{ fontSize: 26}}>{productsCounters[item.id]}</Text>
+                </View>
+                <View style={{flex: 4, alignItems: 'flex-start'}}>
+                    <TouchableOpacity style={styles.counterButton} onPress={() => plusCount(item.id)}>
+                        <AntDesign name="pluscircleo" size={32} color="orange" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <TouchableOpacity style={styles.buttonPrimary} onPress={() => addToCart(item)}>
                 <Text style={{...styles.prodName, color: '#fff', fontSize: 26}}>Add to Cart</Text>
             </TouchableOpacity>
         </View>
@@ -95,8 +152,8 @@ const styles = StyleSheet.create({
         }
     },
     cardImage: {
-        width: '80%',
-        height: 300,
+        width: '62%',
+        height: 200,
     },
     prodName:{
         fontSize: 32,
@@ -106,9 +163,18 @@ const styles = StyleSheet.create({
     buttonPrimary: {
         marginVertical: 10,
         width: 200,
-        backgroundColor: 'lightblue',
+        backgroundColor: '#2331F2',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: '16'
+    },
+    counter: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    counterButton: {
+        marginHorizontal: 15
     }
   });
